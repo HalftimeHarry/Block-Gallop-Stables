@@ -9,12 +9,21 @@ contract Racehorse is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
+    enum SaleType {
+        PrivateSale,
+        Claim,
+        Auction
+    }
+
     struct HorseData {
         string name;
         uint16 age;
         string breed;
         string racingStats;
         string tokenURI;
+        string imageURL;
+        SaleType saleType;
+        uint256 price;
     }
 
     mapping(uint256 => HorseData) private _horseData;
@@ -26,7 +35,10 @@ contract Racehorse is ERC721URIStorage {
         uint16 age,
         string memory breed,
         string memory racingStats,
-        string memory tokenURI
+        string memory tokenURI,
+        string memory imageURL,
+        SaleType _saleType,
+        uint256 _price
     ) public returns (uint256) {
         _tokenIds.increment();
 
@@ -39,7 +51,10 @@ contract Racehorse is ERC721URIStorage {
             age,
             breed,
             racingStats,
-            tokenURI
+            tokenURI,
+            imageURL,
+            _saleType,
+            _price
         );
 
         return newItemId;

@@ -63,14 +63,14 @@ contract HorseEscrow {
         address payable _seller,
         address _veterinarian,
         address _dao,
-        address _horseTokenAddress
+        address _bgstTokenAddress
     ) {
         nftAddress = _nftAddress;
         governanceTokenAddress = _governanceTokenAddress;
         seller = _seller;
         veterinarian = _veterinarian;
         dao = _dao;
-        _horseTokenAddress = _horseTokenAddress;
+        bgstTokenAddress = _bgstTokenAddress;
     }
 
     function calculateGovernanceTokens(
