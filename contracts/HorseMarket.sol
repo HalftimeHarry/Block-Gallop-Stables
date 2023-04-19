@@ -19,7 +19,7 @@ contract HorseMarket {
         uint256 auctionEndTime;
     }
 
-    Racehorse private _racehorseContract;
+    RaceHorse private _raceHorseContract;
     mapping(uint256 => Sale) private _horseSales;
 
     address private nftAddress;
@@ -42,14 +42,14 @@ contract HorseMarket {
     event HorseSaleCanceled(uint256 indexed tokenId);
 
     constructor(
-        address racehorseContractAddress,
+        address raceHorseContractAddress,
         address _nftAddress,
         address _governanceTokenAddress,
         address _veterinarian,
         address _dao,
         address _horseTokenAddress
     ) {
-        _racehorseContract = Racehorse(racehorseContractAddress);
+        _raceHorseContract = RaceHorse(raceHorseContractAddress);
         nftAddress = _nftAddress;
         governanceTokenAddress = _governanceTokenAddress;
         veterinarian = _veterinarian;
@@ -66,7 +66,7 @@ contract HorseMarket {
         address buyer
     ) external {
         require(
-            _racehorseContract.ownerOf(tokenId) == msg.sender,
+            _raceHorseContract.ownerOf(tokenId) == msg.sender,
             "Not the owner of the horse"
         );
         require(
@@ -74,7 +74,7 @@ contract HorseMarket {
             "Invalid auction duration"
         );
 
-        _racehorseContract.transferFrom(msg.sender, address(this), tokenId);
+        _raceHorseContract.transferFrom(msg.sender, address(this), tokenId);
 
         uint256 auctionEndTime = saleType == SaleType.Auction
             ? block.timestamp + deadline
@@ -120,7 +120,7 @@ contract HorseMarket {
 
         require(msg.value >= sale.price, "Insufficient payment");
         address seller = sale.seller;
-        _racehorseContract.transferFrom(address(this), msg.sender, tokenId);
+        _raceHorseContract.transferFrom(address(this), msg.sender, tokenId);
 
         if (msg.value > sale.price) {
             payable(msg.sender).transfer(msg.value - sale.price);
@@ -136,7 +136,7 @@ contract HorseMarket {
         Sale storage sale = _horseSales[tokenId];
         require(sale.seller == msg.sender, "Not the owner of the horse");
 
-        _racehorseContract.transferFrom(address(this), msg.sender, tokenId);
+        _raceHorseContract.transferFrom(address(this), msg.sender, tokenId);
         delete _horseSales[tokenId];
         emit HorseSaleCanceled(tokenId);
     }

@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
-contract Racehorse is ERC721URIStorage {
+contract RaceHorse is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -28,7 +28,7 @@ contract Racehorse is ERC721URIStorage {
 
     mapping(uint256 => HorseData) private _horseData;
 
-    constructor() ERC721("Racehorse", "HRS") {}
+    constructor() ERC721("RaceHorse", "HRS") {}
 
     function mintHorse(
         string memory name,

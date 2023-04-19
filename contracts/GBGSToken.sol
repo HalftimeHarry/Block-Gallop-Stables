@@ -5,12 +5,12 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract BGSToken is ERC20, AccessControl {
+contract GBGSToken is ERC20, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     constructor(
         address initialMinter
-    ) ERC20("BlockGallop Stable Token", "BGST") {
+    ) ERC20("BlockGallop Stable Token", "GBGST") {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(MINTER_ROLE, initialMinter);
     }

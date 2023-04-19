@@ -2,7 +2,8 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "./BGSTToken.sol";
+import "./BGSToken.sol";
+import "./GBGSToken.sol";
 
 contract HorseEscrow {
     address public nftAddress;
@@ -168,10 +169,10 @@ contract HorseEscrow {
         uint256 governanceTokensToMint = calculateGovernanceTokens(
             currentDeposit[_nftID]
         );
-        BGSTToken(bgstTokenAddress).mint(buyer[_nftID], governanceTokensToMint);
+        BGSToken(bgstTokenAddress).mint(buyer[_nftID], governanceTokensToMint);
 
         if (excessFunds > 0) {
-            BGSTToken(bgstTokenAddress).transfer(buyer[_nftID], excessFunds);
+            BGSToken(bgstTokenAddress).transfer(buyer[_nftID], excessFunds);
         }
 
         saleFinalized[_nftID] = true;
