@@ -2,12 +2,14 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract HorseClaim {
     using SafeMath for uint256;
 
     address public dao;
     address public trainer;
+    address public nftAddress;
 
     struct Claim {
         uint256 horseId;
@@ -69,10 +71,21 @@ contract HorseClaim {
         if (_approved) {
             // Transfer the claimingPrice to the trainer
             payable(trainer).transfer(claim.claimingPrice);
+            // Transfer the NFT to the DAO
+            IERC721(nftAddress).transferFrom(address(this), dao, claim.horseId);
         } else {
             // Refund the contributions to each contributor
-            // You can either implement a manual refund method or use a push pattern (e.g., using a loop)
-            // Make sure to handle the gas costs and the block gas limit if using a loop
+            for (uint256 i = 0; i < claim.totalContributions; i++) {
+                address payable contributor = payable(msg.sender);
+                uint256 contribution = claim.contributions[contributor];
+                if (contribution > 0) {
+                    claim.contributions[contributor] = 0;
+                    claim.totalContributions = claim.totalContributions.sub(
+                        contribution
+                    );
+                    contributor.transfer(contribution);
+                }
+            }
         }
     }
 }

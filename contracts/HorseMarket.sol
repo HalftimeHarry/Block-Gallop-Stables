@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./RaceHorse.sol";
 import "./HorseEscrow.sol" as EscrowContract;
+import "./HorseClaim.sol";
 
 contract HorseMarket {
     enum SaleType {
