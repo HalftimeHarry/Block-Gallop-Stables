@@ -68,14 +68,16 @@ contract HorseMarket {
     ) external {
         require(
             _raceHorseContract.ownerOf(tokenId) == msg.sender,
-            "Not the owner of the horse"
+            "Caller must be token owner"
+        );
+        require(
+            _raceHorseContract.getApproved(tokenId) == address(this),
+            "Contract not approved for token"
         );
         require(
             saleType != SaleType.Auction || deadline > 0,
             "Invalid auction duration"
         );
-
-        _raceHorseContract.transferFrom(msg.sender, address(this), tokenId);
 
         uint256 auctionEndTime = saleType == SaleType.Auction
             ? block.timestamp + deadline
@@ -90,6 +92,9 @@ contract HorseMarket {
 
         emit HorseListed(tokenId, saleType, price);
 
+        // Approve the HorseMarket contract to manage the token on behalf of the token owner
+        _raceHorseContract.approve(address(this), tokenId);
+
         // Create HorseEscrow contract
         EscrowContract.HorseEscrow escrow = new EscrowContract.HorseEscrow(
             nftAddress,
@@ -99,6 +104,9 @@ contract HorseMarket {
             dao,
             horseTokenAddress
         );
+
+        // Approve the HorseEscrow contract to handle the NFT on behalf of the seller
+        _raceHorseContract.approve(address(escrow), tokenId);
 
         escrow.list(
             tokenId,
@@ -121,7 +129,14 @@ contract HorseMarket {
 
         require(msg.value >= sale.price, "Insufficient payment");
         address seller = sale.seller;
-        _raceHorseContract.transferFrom(address(this), msg.sender, tokenId);
+
+        // Get the HorseEscrow contract associated with the tokenId
+        EscrowContract.HorseEscrow escrow = EscrowContract.HorseEscrow(
+            payable(_raceHorseContract.getApproved(tokenId))
+        );
+
+        // Transfer the NFT from the HorseEscrow contract to the buyer
+        _raceHorseContract.transferFrom(address(escrow), msg.sender, tokenId);
 
         if (msg.value > sale.price) {
             payable(msg.sender).transfer(msg.value - sale.price);

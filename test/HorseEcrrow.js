@@ -7,7 +7,7 @@ const tokens = (n) => {
 
 describe("HorseEscrow", function () {
   let buyer, seller, veterinarian, dao;
-  let raceHorse, bgstToken, horseEscrow, gbgstToken;
+  let raceHorse, bgstToken, horseEscrow, horseMarket, gbgstToken;
 
   before(async () => {
     // Setup accounts
@@ -49,6 +49,17 @@ describe("HorseEscrow", function () {
     const BGSToken = await ethers.getContractFactory("BGSToken");
     bgstToken = await BGSToken.deploy(tokens(1000000).toString()); // Convert BigNumber to string
 
+    console.log("Deploying HorseMarket");
+      const HorseMarket = await ethers.getContractFactory("HorseMarket");
+      horseMarket = await HorseMarket.deploy(
+        raceHorse.address,
+        nftAddress,
+        bgstToken.address,
+        veterinarian.address,
+        dao.address,
+        gbgstToken.address
+      );
+
     console.log("Deploying HorseEscrow");
     // Deploy HorseEscrow
     const HorseEscrow = await ethers.getContractFactory("HorseEscrow");
@@ -82,4 +93,41 @@ it("initializes seller and buyer BGSToken balances correctly", async () => {
     const address = horseEscrow.address;
     expect(address).to.not.equal(0);
   });
+
+      it("should list a horse for sale as a private sale", async function () {
+      // Mint a new horse token
+      await raceHorse.connect(seller).mintHorse(
+        "Test Horse",
+        3, // age
+        "Breed Name", // breed
+        "Racing Stats", // racingStats
+        "Token URI", // tokenURI
+        "Image URL", // imageURL
+        1, // SaleType (PrivateSale as an example, use the correct index from your SaleType enum)
+        ethers.utils.parseEther("1") // price
+      );
+      const tokenId = 1;
+
+      // Approve the horseMarket contract to handle the horse token (NFT) on behalf of the seller
+      await raceHorse.connect(seller).approve(horseMarket.address, tokenId);
+
+      // List the horse for private sale
+      const saleType = 1; // PrivateSale
+      const price = ethers.utils.parseEther("20");
+      const goalAmount = ethers.utils.parseEther("10");
+      const deadline = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
+
+      await horseMarket
+        .connect(seller)
+        .listHorseForSale(tokenId, saleType, price, goalAmount, deadline, buyer.address);
+
+      // Get the sale details
+      const sale = await horseMarket.getHorseSale(tokenId);
+
+      // Verify the sale details
+      expect(sale.saleType).to.equal(saleType);
+      expect(sale.seller).to.equal(seller.address);
+      expect(sale.tokenId).to.equal(tokenId);
+      expect(sale.price).to.equal(price);
+    });
 });
