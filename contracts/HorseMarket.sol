@@ -121,6 +121,19 @@ contract HorseMarket {
     }
 
     function buyHorse(uint256 tokenId) external payable {
+        // Check if the account has the BUYER_ROLE, if not, assign it
+        if (
+            !_raceHorseContract.hasRole(
+                _raceHorseContract.BUYER_ROLE(),
+                msg.sender
+            )
+        ) {
+            _raceHorseContract.grantRole(
+                _raceHorseContract.BUYER_ROLE(),
+                msg.sender
+            );
+        }
+
         Sale storage sale = _horseSales[tokenId];
         require(
             sale.saleType != SaleType.Auction,

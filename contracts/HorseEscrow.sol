@@ -4,8 +4,12 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./BGSToken.sol";
 import "./GBGSToken.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "./RoleManager.sol"; // Import the RoleManager contract
 
-contract HorseEscrow {
+contract HorseEscrow is
+    RoleManager // Inherit from the RoleManager contract
+{
     address public nftAddress;
     address public governanceTokenAddress;
     address payable public seller;
@@ -72,6 +76,15 @@ contract HorseEscrow {
         veterinarian = _veterinarian;
         dao = _dao;
         bgstTokenAddress = _bgstTokenAddress;
+
+        // Grant the SELLER_ROLE to the initial seller address
+        _setupRole(SELLER_ROLE, _seller);
+
+        // Grant the VETERINARIAN_ROLE to the initial veterinarian address
+        _setupRole(VETERINARIAN_ROLE, _veterinarian);
+
+        // Grant the DAO_ROLE to the initial DAO address
+        _setupRole(DAO_ROLE, _dao);
     }
 
     function calculateGovernanceTokens(
@@ -92,7 +105,14 @@ contract HorseEscrow {
     }
 
     function setSeller(address payable _seller) public onlySeller {
+        // Revoke the role from the old seller
+        revokeRole(SELLER_ROLE, seller);
+
+        // Update the seller
         seller = _seller;
+
+        // Grant the role to the new seller
+        grantRole(SELLER_ROLE, seller);
     }
 
     function setVeterinarian(address _veterinarian) public onlySeller {

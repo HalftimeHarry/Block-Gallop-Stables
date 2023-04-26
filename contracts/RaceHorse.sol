@@ -1,13 +1,18 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract RaceHorse is ERC721URIStorage {
+contract RaceHorse is ERC721URIStorage, AccessControl {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
+
+    bytes32 public constant SELLER_ROLE = keccak256("SELLER_ROLE");
+    bytes32 public constant VETERINARIAN_ROLE = keccak256("VETERINARIAN_ROLE");
+    bytes32 public constant BUYER_ROLE = keccak256("BUYER_ROLE");
 
     // Define SaleType enum
     enum SaleType {
@@ -32,7 +37,18 @@ contract RaceHorse is ERC721URIStorage {
     mapping(uint256 => HorseData) private _horseData;
 
     // Constructor
-    constructor() ERC721("RaceHorse", "HRS") {}
+    constructor() ERC721("RaceHorse", "HRS") {
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setupRole(SELLER_ROLE, _msgSender());
+        _setupRole(VETERINARIAN_ROLE, _msgSender());
+        _setupRole(BUYER_ROLE, _msgSender());
+    }
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(ERC721, AccessControl) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
 
     // Function to mint a new horse
     function mintHorse(
@@ -45,6 +61,11 @@ contract RaceHorse is ERC721URIStorage {
         SaleType _saleType,
         uint256 _price
     ) public returns (uint256) {
+        // Check if the account has the SELLER_ROLE, if not, assign it
+        if (!hasRole(SELLER_ROLE, msg.sender)) {
+            grantRole(SELLER_ROLE, msg.sender);
+        }
+
         _tokenIds.increment();
 
         uint256 newItemId = _tokenIds.current();
