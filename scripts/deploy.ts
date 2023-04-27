@@ -46,21 +46,6 @@ async function main() {
     Auction: 2,
   };
 
-  console.log(`Minting 3 horses...\n`);
-  for (let i = 0; i < 3; i++) {
-    const transaction = await raceHorse.connect(seller).mintHorse(
-      "My horse name",
-      3,
-      "Thoroughbred",
-      "Raced in 5 competitions, won 2",
-      "https://mytokenuri.com/123",
-      "https://myimageurl.com/123",
-      SaleType.Auction, // Use the SaleType enum value here
-      ethers.utils.parseUnits("100", "ether")
-    );
-    await transaction.wait();
-  }
-
   // Deploy HorseEscrow
   // In your deploy.ts script
   const HorseEscrow = await ethers.getContractFactory("HorseEscrow");
@@ -75,43 +60,19 @@ async function main() {
   await horseEscrow.deployed();
 
   console.log(`Deployed HorseEscrow Contract at: ${horseEscrow.address}`);
-  console.log(`Listing 3 horses...\n`);
-  
 
-  const deadlineDuration = 60 * 60 * 24 * 7; // 7 days in seconds
-  const currentBlock = await hre.ethers.provider.getBlock('latest');
-  const currentTimestamp = currentBlock.timestamp;
+  const HorseMarket = await ethers.getContractFactory("HorseMarket");
+  const horseMarket = await HorseMarket.deploy(
+    raceHorse.address,
+    governanceToken.address,
+    seller.address,
+    veterinarian.address,
+    dao.address,
+    valueToken.address // Add the missing argument here
+  );
+  await horseMarket.deployed();
 
-  let transaction;
-  for (let i = 0; i < 3; i++) {
-    transaction = await raceHorse.connect(seller).approve(horseEscrow.address, i + 1);
-    await transaction.wait();
-  }
-
-if (await horseEscrow.hasRole(seller.address)) {
-  // Listing horses...
-  transaction = await horseEscrow.connect(seller).list(1, buyer.address, tokens(20), tokens(0), currentTimestamp + deadlineDuration, seller.address, {
-    gasLimit: ethers.utils.hexlify(1500000), // Increase the gas limit to 1.5 million
-  });
-  await transaction.wait();
-  console.log('list 1');
-
-  transaction = await horseEscrow.connect(seller).list(2, buyer.address, tokens(20), tokens(0), currentTimestamp + deadlineDuration, seller.address, {
-    gasLimit: ethers.utils.hexlify(1500000), // Increase the gas limit to 1.5 million
-  });
-  await transaction.wait();
-  console.log('list 2');
-
-  transaction = await horseEscrow.connect(seller).list(3, buyer.address, tokens(20), tokens(0), currentTimestamp + deadlineDuration, seller.address, {
-    gasLimit: ethers.utils.hexlify(1500000), // Increase the gas limit to 1.5 million
-  });
-  await transaction.wait();
-  console.log('list 3');
-
-  console.log(`Finished.`);
-} else {
-  console.log('Seller does not have the SELLER_ROLE');
-}
+  console.log(`Deployed HorseMarket Contract at: ${horseMarket.address}`);
 
 } // This is the corrected location of the closing curly brace
 

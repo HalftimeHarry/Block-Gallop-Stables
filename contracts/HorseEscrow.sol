@@ -123,6 +123,10 @@ contract HorseEscrow is
         dao = _dao;
     }
 
+    function setDeadline(uint256 _nftID, uint256 _deadline) public onlySeller {
+        deadline[_nftID] = _deadline;
+    }
+
     function list(
         uint256 _nftID,
         address _buyer,
