@@ -42,7 +42,7 @@ contract HorseEscrow is
 
     modifier goalReached(uint256 _nftID) {
         require(
-            currentDeposit[_nftID] >= targetAmount[_nftID],
+            currentDeposit[_nftID] >= goalAmount[_nftID],
             "Target amount not reached"
         );
         _;
@@ -54,7 +54,7 @@ contract HorseEscrow is
     mapping(uint256 => address) public buyer;
     mapping(uint256 => bool) public veterinarianPassed;
     mapping(uint256 => mapping(address => bool)) public approval;
-    mapping(uint256 => uint256) public targetAmount;
+    mapping(uint256 => uint256) public goalAmount;
     mapping(uint256 => uint256) public currentDeposit;
     mapping(uint256 => mapping(address => uint256)) public buyerDeposit;
     mapping(uint256 => uint256) public deadline;
@@ -101,7 +101,7 @@ contract HorseEscrow is
         uint256 _nftID,
         uint256 _goalAmount
     ) public onlySeller {
-        targetAmount[_nftID] = _goalAmount;
+        goalAmount[_nftID] = _goalAmount;
     }
 
     function setSeller(address payable _seller) public onlySeller {
@@ -140,7 +140,7 @@ contract HorseEscrow is
 
         isListed[_nftID] = true;
         purchasePrice[_nftID] = _purchasePrice;
-        targetAmount[_nftID] = _goalAmount;
+        goalAmount[_nftID] = _goalAmount;
         buyer[_nftID] = _buyer;
         deadline[_nftID] = _deadline;
         horseSeller[_nftID] = _seller;
@@ -166,20 +166,20 @@ contract HorseEscrow is
     // -> Transfer NFT to DAO
     // -> Transfer Funds to seller
     // -> Mint and distribute governance tokens to buyer based on their contribution
-    // -> Return excessFunds to buyer when targetAmount is achieved
+    // -> Return excessFunds to buyer when goalAmount is achieved
     function finalizeSale(uint256 _nftID) public {
         require(veterinarianPassed[_nftID], "Veterinarian has not been passed");
         require(approval[_nftID][seller], "Seller has not approved");
         require(approval[_nftID][dao], "DAO has not approved");
         require(isListed[_nftID], "NFT not listed for sale");
         require(
-            currentDeposit[_nftID] >= targetAmount[_nftID],
+            currentDeposit[_nftID] >= goalAmount[_nftID],
             "Funds not sufficient"
         );
 
         isListed[_nftID] = false;
 
-        uint256 excessFunds = currentDeposit[_nftID] - targetAmount[_nftID];
+        uint256 excessFunds = currentDeposit[_nftID] - goalAmount[_nftID];
 
         (bool success, ) = payable(horseSeller[_nftID]).call{
             value: purchasePrice[_nftID]

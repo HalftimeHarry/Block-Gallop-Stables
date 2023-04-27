@@ -6,18 +6,23 @@
 	// Stores
 	import { modalStore } from '@skeletonlabs/skeleton';
 
-	// Import HorseInput interface
-	import type { HorseInput } from '/workspace/Block-Gallop-Stables/client/src/HorseInput';
-
+	// Import HorseData type
+	import type { HorseData } from '/workspace/Block-Gallop-Stables/client/src/HorseData';
 	// Form Data
-	const formData: HorseInput = {
+	const formData: HorseData = {
 		name: 'Enter name here...',
 		age: 0,
 		breed: 'Thoroughbred',
-		racingStatus: '',
+		racingStats: '',
+		tokenURI: '',
+		imageURL: '',
 		saleType: 'Private Sale',
-		price: 0
+		price: 0,
+		deadline: 0
 	};
+
+	import { DateInput } from 'date-picker-svelte';
+	let date = new Date();
 
 	// We've created a custom submit function to pass the response and close the modal.
 	function onFormSubmit(): void {
@@ -71,6 +76,16 @@
 				type="number"
 				bind:value={formData.price}
 				placeholder="Enter price here..."
+			/>
+		</label>
+		<label class="label">
+			<span>Deadline</span>
+			<DateInput bind:value={date} />
+			<input
+				class="input"
+				type="number"
+				bind:value={formData.deadline}
+				placeholder="Enter deadline here..."
 			/>
 		</label>
 		<label class="label">

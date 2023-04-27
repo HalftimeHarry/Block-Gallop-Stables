@@ -19,7 +19,16 @@ class NavbarController {
     }
       
     async init() {
-        this.ethersProvider = new EthersProvider();
+        // Create a new instance of Web3Provider
+        const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+        
+        // Get the list of accounts and extract the first account from the list
+        const accounts = await provider.listAccounts();
+        const account = accounts[0];
+
+        // Pass the account address to the EthersProvider constructor
+        this.ethersProvider = new EthersProvider(account);
+
         this.#getDetails();
     }
   
