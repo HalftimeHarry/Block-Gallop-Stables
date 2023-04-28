@@ -6,30 +6,41 @@
 	// Stores
 	import { modalStore } from '@skeletonlabs/skeleton';
 
-	// Import HorseData type
-	import type { HorseData } from '/workspace/Block-Gallop-Stables/client/src/HorseData';
+	// Import HorseImput type
+	import type { HorseInput } from '/workspace/Block-Gallop-Stables/client/src/HorseInput';
 	// Form Data
-	const formData: HorseData = {
-		name: 'Enter name here...',
-		age: 0,
+	const formData: HorseImput = {
+		name: '',
+		age: null,
 		breed: 'Thoroughbred',
-		racingStats: '',
+		racingStatus: '',
 		tokenURI: '',
 		imageURL: '',
 		saleType: 'Private Sale',
-		price: 0,
-		deadline: 0
+		price: null,
+		deadline: null
+	};
+
+	let imageURL = '';
+
+	const handleFileInput = (event) => {
+		const file = event.target.files[0];
+		const reader = new FileReader();
+		reader.onload = () => {
+			formData.imageURL = reader.result;
+		};
+		reader.readAsDataURL(file);
 	};
 
 	import { DateInput } from 'date-picker-svelte';
-	let date = new Date();
+	let deadline = new Date();
 
 	// We've created a custom submit function to pass the response and close the modal.
 	function onFormSubmit(): void {
+		formData.deadline = deadline.getTime(); // Add this line
 		if ($modalStore[0].response) $modalStore[0].response(formData);
 		modalStore.close();
 	}
-
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
@@ -51,6 +62,15 @@
 				type="text"
 				bind:value={formData.name}
 				placeholder="Enter name here..."
+			/>
+		</label>
+		<label class="label">
+			<span>Age</span>
+			<input
+				class="input"
+				type="number"
+				bind:value={formData.age}
+				placeholder="Enter horse age here..."
 			/>
 		</label>
 		<label class="label">
@@ -79,14 +99,17 @@
 			/>
 		</label>
 		<label class="label">
+			<span>Photo</span>
+			<input class="input" type="file" on:change={handleFileInput} />
+			{#if formData.imageURL}
+				<!-- svelte-ignore a11y-img-redundant-alt -->
+				<img src={formData.imageURL} alt="Selected Image" />
+			{/if}
+		</label>
+		<!-- svelte-ignore a11y-label-has-associated-control -->
+		<label class="label">
 			<span>Deadline</span>
-			<DateInput bind:value={date} />
-			<input
-				class="input"
-				type="number"
-				bind:value={formData.deadline}
-				placeholder="Enter deadline here..."
-			/>
+			<DateInput bind:value={deadline} />
 		</label>
 		<label class="label">
 			<span>Status</span>

@@ -8,7 +8,7 @@
 		const d: ModalSettings = {
 			type: 'component',
 			component: c,
-			title: 'List a Horse',
+			title: 'List Horse',
 			body: 'Complete the form below and then press submit.',
 			response: (r: any) => console.log('response:', r)
 		};
