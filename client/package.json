@@ -35,6 +35,8 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"date-picker-svelte": "^2.3.0"
+		"date-picker-svelte": "^2.3.0",
+		"dotenv": "^16.0.3",
+		"nft.storage": "^7.0.3"
 	}
 }

@@ -1,7 +1,13 @@
 <script lang="ts">
+	import { NFTStorage, File } from 'nft.storage';
+
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: any;
+
+	export const NFT_STORAGE_KEY = import.meta.env.VITE_NFT_STORAGE_KEY;
+
+	const nftstorage = new NFTStorage({ token: NFT_STORAGE_KEY });
 
 	// Stores
 	import { modalStore } from '@skeletonlabs/skeleton';
@@ -21,6 +27,13 @@
 		deadline: null
 	};
 
+	type TokenInput = {
+		name: string;
+		description: string;
+		image: File;
+		// ... other properties
+	};
+
 	let imageURL = '';
 
 	const handleFileInput = (event) => {
@@ -35,11 +48,42 @@
 	import { DateInput } from 'date-picker-svelte';
 	let deadline = new Date();
 
-	// We've created a custom submit function to pass the response and close the modal.
+	function dataURLtoFile(dataurl, filename) {
+		const arr = dataurl.split(',');
+		const mime = arr[0].match(/:(.*?);/)[1];
+		const bstr = atob(arr[1]);
+		let n = bstr.length;
+		const u8arr = new Uint8Array(n);
+		while (n--) {
+			u8arr[n] = bstr.charCodeAt(n);
+		}
+		return new File([u8arr], filename, { type: mime });
+	}
+
+	async function storeNFT() {
+		// Convert the image URL to a File object
+		const imageFile = dataURLtoFile(formData.imageURL, 'image.png');
+
+		// Prepare the TokenInput object
+		const tokenInput: TokenInput = {
+			name: formData.name,
+			description: `Age: ${formData.age}, Breed: ${formData.breed}, Racing Status: ${formData.racingStatus}, Sale Type: ${formData.saleType}, Price: ${formData.price}, Deadline: ${formData.deadline}`,
+			image: imageFile
+			// ... other properties
+		};
+
+		const ipnft = await nftstorage.store(tokenInput);
+
+		// Do something with ipnft, e.g., store it in formData
+		formData.ipnft = ipnft;
+	}
+
 	function onFormSubmit(): void {
-		formData.deadline = deadline.getTime(); // Add this line
+		formData.deadline = deadline.getTime();
 		if ($modalStore[0].response) $modalStore[0].response(formData);
-		modalStore.close();
+		storeNFT().then(() => {
+			modalStore.close();
+		});
 	}
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
@@ -50,8 +94,8 @@
 <!-- @component This example creates a simple form modal. -->
 
 <div class="modal-form {cBase}">
-	<header class={cHeader}>{$modalStore[0].title ?? '(title missing)'}</header>
-	<article>{$modalStore[0].body ?? '(body missing)'}</article>
+	<header class={cHeader}>{$modalStore[0]?.name ?? '(name missing)'}</header>
+	<article>{$modalStore[0]?.body ?? '(body missing)'}</article>
 	<!-- Enable for debugging: -->
 	<!-- <pre>{JSON.stringify(formData, null, 2)}</pre> -->
 	<form class="modal-form {cForm}">

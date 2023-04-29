@@ -6,7 +6,6 @@
 	// Most of your app wide CSS should be put in this file
 	import '../app.postcss';
 	import { AppBar, AppShell } from '@skeletonlabs/skeleton';
-	import JsonViewer from '../lib/components/JsonViewer.svelte';
 	import MetamaskController from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/MetamaskController';
 	import { onMount } from 'svelte';
 	import navbarController from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/NavbarController';
@@ -47,7 +46,7 @@
 			slotTrail="place-content-end"
 		>
 			<svelte:fragment slot="lead">{balance}</svelte:fragment>
-			BlockGallop Stables
+			<h2>BlockGallop Stables</h2>Unbridled Innovation
 			<svelte:fragment slot="trail">
 				<button on:click={connect} type="button" class="btn variant-filled">
 					{address ? `${address.slice(0, 5)}...${address.slice(-4)}` : 'Connect'}
@@ -66,6 +65,5 @@
 	{:else}
 		<p>Loading...</p>
 	{/if}
-	<JsonViewer />
 	<slot />
 </AppShell>
