@@ -31,6 +31,10 @@ class EthersProvider {
     }
   }
 
+  setAccount(account: string) {
+    this.account = account;
+  }
+
   async getConnectedAccount() {
     if (typeof window === 'undefined') {
       console.error("Window object is not available");
@@ -150,14 +154,15 @@ class EthersProvider {
       },
     };
   }
-  get horseMarketContract() {
+  gethorseMarketContract() {
+    console.log("Getting horseMarketContract");
     const contract = this.getContract({
       abi: horseMarketABI.abi,
       address: HorseMarketAddress,
     });
     // Add the rest of the HorseMarket contract methods here and return the object
     return {
-      listHorseForSale: async (tokenId: number, saleType: number, price: number, goalAmount: number, deadline: number, buyer: string) => {
+      listHorseForSale: async (tokenId: number, saleType: number, price: number, deadline: number, goalAmount: number, buyer: string) => {
         const result = await contract.methods.listHorseForSale(tokenId, saleType, price, goalAmount, deadline, buyer).send({ from: this.account });
         return result;
       },

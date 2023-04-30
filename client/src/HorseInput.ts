@@ -1,12 +1,12 @@
 // HorseInput.ts
-export interface HorseInput {
+interface HorseInput {
   name: string;
   age: number;
-  tokenURI: string;
-  imageURL: string;
   breed: string;
   racingStatus: string;
+  tokenURI: string;
+  imageURL: string;
   saleType: string;
   price: number;
-  deadline: Date;
+  deadline: Date | null;
 }

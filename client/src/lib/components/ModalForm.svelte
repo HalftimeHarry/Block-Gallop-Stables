@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { NFTStorage, File } from 'nft.storage';
-	import horseMarketController from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/HorseMarketController';
+	import { HorseMarketController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/HorseMarketController';
 
 	// Props
 	/** Exposes parent props to this component. */
@@ -16,15 +16,15 @@
 	// Import HorseImput type
 	import type { HorseInput } from '/workspace/Block-Gallop-Stables/client/src/HorseInput';
 	// Form Data
-	const formData: HorseImput = {
+	const formData: HorseInput = {
 		name: '',
-		age: null,
+		age: 0,
 		breed: 'Thoroughbred',
 		racingStatus: '',
 		tokenURI: '',
 		imageURL: '',
 		saleType: 'Private Sale',
-		price: null,
+		price: 0,
 		deadline: null
 	};
 
@@ -80,12 +80,14 @@
 	}
 
 	async function onFormSubmit(): Promise<void> {
-		formData.deadline = deadline.getTime();
-
-		const { tokenId, saleType, price, goalAmount, deadline, buyer } = formData;
+		const horseMarketController = new HorseMarketController();
+		const { tokenId = 1, saleType, price, goalAmount, deadline, buyer } = formData;
 
 		try {
-			await horseMarketController.horseMarketContract.listHorseForSale(
+			console.log('Before calling listHorseForSale');
+			console.log(tokenId);
+			await horseMarketController.init();
+			await horseMarketController.listHorseForSale(
 				tokenId,
 				saleType,
 				price,
@@ -93,6 +95,7 @@
 				deadline,
 				buyer
 			);
+			console.log('After calling listHorseForSale');
 
 			if ($modalStore[0].response) $modalStore[0].response(formData);
 			await storeNFT();
@@ -169,7 +172,7 @@
 		<!-- svelte-ignore a11y-label-has-associated-control -->
 		<label class="label">
 			<span>Deadline</span>
-			<DateInput bind:value={deadline} />
+			<DateInput bind:value={formData.deadline} />
 		</label>
 		<label class="label">
 			<span>Status</span>
