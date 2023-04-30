@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { NFTStorage, File } from 'nft.storage';
+	import horseMarketController from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/HorseMarketController';
 
 	// Props
 	/** Exposes parent props to this component. */
@@ -78,12 +79,27 @@
 		formData.ipnft = ipnft;
 	}
 
-	function onFormSubmit(): void {
+	async function onFormSubmit(): Promise<void> {
 		formData.deadline = deadline.getTime();
-		if ($modalStore[0].response) $modalStore[0].response(formData);
-		storeNFT().then(() => {
+
+		const { tokenId, saleType, price, goalAmount, deadline, buyer } = formData;
+
+		try {
+			await horseMarketController.horseMarketContract.listHorseForSale(
+				tokenId,
+				saleType,
+				price,
+				goalAmount,
+				deadline,
+				buyer
+			);
+
+			if ($modalStore[0].response) $modalStore[0].response(formData);
+			await storeNFT();
 			modalStore.close();
-		});
+		} catch (error) {
+			console.error('Error listing horse for sale:', error);
+		}
 	}
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
@@ -94,7 +110,7 @@
 <!-- @component This example creates a simple form modal. -->
 
 <div class="modal-form {cBase}">
-	<header class={cHeader}>{$modalStore[0]?.name ?? '(name missing)'}</header>
+	<header class={cHeader}>{$modalStore[0]?.title ?? '(title missing)'}</header>
 	<article>{$modalStore[0]?.body ?? '(body missing)'}</article>
 	<!-- Enable for debugging: -->
 	<!-- <pre>{JSON.stringify(formData, null, 2)}</pre> -->

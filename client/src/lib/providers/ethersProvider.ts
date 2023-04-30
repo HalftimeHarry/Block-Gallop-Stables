@@ -21,10 +21,36 @@ class EthersProvider {
   signer: ethers.providers.JsonRpcSigner;
   account: string;
 
-  constructor(account: string) {
+  constructor(account?: string) {
     this.account = account;
-    this.provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-    this.signer = this.provider.getSigner();
+    if (typeof window !== 'undefined') {
+      this.provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+      this.signer = this.provider.getSigner();
+    } else {
+      console.error("Window object is not available");
+    }
+  }
+
+  async getConnectedAccount() {
+    if (typeof window === 'undefined') {
+      console.error("Window object is not available");
+      return;
+    }
+
+    if (window.ethereum) {
+      try {
+        // Request account access
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+        // Get the user's account address
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        return accounts[0]; // Return the first account in the array
+      } catch (error) {
+        console.error("User denied account access");
+      }
+    } else {
+      console.error("No web3 provider detected");
+    }
   }
     // Add this method to the EthersProvider class
   async listAccounts() {
@@ -168,8 +194,36 @@ class EthersProvider {
         }
         return nfts;
       },
+      mintHorse: async (
+        name,
+        age,
+        breed,
+        racingStats,
+        tokenURI,
+        imageURL,
+        saleType,
+        price
+      ) => {
+        try {
+          const tx = await contract.mintHorse(
+            name,
+            age,
+            breed,
+            racingStats,
+            tokenURI,
+            imageURL,
+            saleType,
+            price
+          );
+          await tx.wait();
+          console.log("Horse minted successfully");
+        } catch (error) {
+          console.error("Error minting horse:", error);
+        }
+      },
     };
   }
+
   get GBGSTokenContract() {
     const contract = this.getContract({
       abi: GBGSTokenABI.abi,
