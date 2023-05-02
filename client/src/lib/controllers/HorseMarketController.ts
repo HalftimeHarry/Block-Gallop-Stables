@@ -17,11 +17,11 @@ static init: any;
         console.log(this.horseMarketContract);
   }
 
-  async listHorseForSale(tokenId: number, saleType: number, price: number, deadline: number, goalAmount: number, buyer: string) {
+  async listHorseForSale(tokenId: number, saleType: number, price: number, deadline: number) {
     console.log("Calling listHorseForSale");
-    console.log(`tokenId: ${tokenId}, saleType: ${saleType}, price: ${price}, deadline: ${deadline}, goalAmount: ${goalAmount}, buyer: ${buyer}`);
+    console.log(`tokenId: ${tokenId}, saleType: ${saleType}, price: ${price}, deadline: ${deadline}`);
     try {
-      const result = await this.horseMarketContract.listHorseForSale(tokenId, saleType, price, goalAmount, deadline, buyer);
+      const result = await this.horseMarketContract.listHorseForSale(tokenId, saleType, price, deadline);
       console.log("List horse for sale result: ", result);
       return result;
     } catch (error) {

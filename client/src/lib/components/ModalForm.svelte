@@ -81,20 +81,13 @@
 
 	async function onFormSubmit(): Promise<void> {
 		const horseMarketController = new HorseMarketController();
-		const { tokenId = 1, saleType, price, goalAmount, deadline, buyer } = formData;
+		const { tokenId = 1, saleType, price, goalAmount, deadline } = formData;
 
 		try {
 			console.log('Before calling listHorseForSale');
 			console.log(tokenId);
 			await horseMarketController.init();
-			await horseMarketController.listHorseForSale(
-				tokenId,
-				saleType,
-				price,
-				goalAmount,
-				deadline,
-				buyer
-			);
+			await horseMarketController.listHorseForSale(saleType, price, goalAmount, deadline);
 			console.log('After calling listHorseForSale');
 
 			if ($modalStore[0].response) $modalStore[0].response(formData);
