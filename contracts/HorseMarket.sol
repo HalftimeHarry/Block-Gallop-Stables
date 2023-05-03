@@ -62,9 +62,7 @@ contract HorseMarket {
         uint256 tokenId,
         SaleType saleType,
         uint256 price,
-        uint256 goalAmount,
-        uint256 deadline,
-        address seller
+        uint256 deadline
     ) external {
         require(
             _raceHorseContract.ownerOf(tokenId) == msg.sender,
@@ -108,14 +106,7 @@ contract HorseMarket {
         // Approve the HorseEscrow contract to handle the NFT on behalf of the seller
         _raceHorseContract.approve(address(escrow), tokenId);
 
-        escrow.list(
-            tokenId,
-            seller, // Include the buyer address when listing the horse
-            price,
-            goalAmount,
-            deadline,
-            payable(msg.sender) // seller, cast to address payable
-        );
+        escrow.list(tokenId, price, deadline);
 
         emit HorseEscrowCreated(tokenId, address(escrow));
     }

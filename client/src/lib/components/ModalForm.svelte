@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { NFTStorage, File } from 'nft.storage';
+	import { RaceHorseController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/RaceHorseController';
 	import { HorseMarketController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/HorseMarketController';
 
 	// Props
@@ -18,13 +19,13 @@
 	// Form Data
 	const formData: HorseInput = {
 		name: '',
-		age: 0,
+		age: '',
 		breed: 'Thoroughbred',
 		racingStatus: '',
 		tokenURI: '',
 		imageURL: '',
 		saleType: 'Private Sale',
-		price: 0,
+		price: '',
 		deadline: null
 	};
 
@@ -76,16 +77,20 @@
 		const ipnft = await nftstorage.store(tokenInput);
 
 		// Do something with ipnft, e.g., store it in formData
-		formData.ipnft = ipnft;
+		formData.tokenURI = ipnft.url;
+
+		// Log the created NFT URL
+		console.log('Created NFT: ', ipnft.url);
 	}
 
 	async function onFormSubmit(): Promise<void> {
 		const horseMarketController = new HorseMarketController();
-		const { tokenId = 1, age, breed, saleType, price, deadline } = formData;
+		const { tokenId = 1, saleType, price, deadline } = formData;
 
 		try {
 			await horseMarketController.init();
-			await horseMarketController.listHorseForSale(tokenId, age, breed, saleType, price, deadline);
+			console.log(horseMarketController);
+			await horseMarketController.listHorseForSale(tokenId, saleType, price, deadline);
 			if ($modalStore[0].response) $modalStore[0].response(formData);
 			await storeNFT();
 			modalStore.close();

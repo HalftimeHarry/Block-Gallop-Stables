@@ -128,30 +128,28 @@ contract HorseEscrow is
     }
 
     function list(
-        uint256 _nftID,
-        address _buyer,
-        uint256 _purchasePrice,
+        uint256 _tokenId,
         uint256 _goalAmount,
-        uint256 _deadline,
-        address payable _seller
+        uint256 _deadline
     ) public {
-        // Transfer NFT from seller to this contract
-        IERC721(nftAddress).transferFrom(msg.sender, address(this), _nftID);
+        // Convert msg.sender to address payable
+        address payable sellerPayable = payable(msg.sender);
 
-        isListed[_nftID] = true;
-        purchasePrice[_nftID] = _purchasePrice;
-        goalAmount[_nftID] = _goalAmount;
-        buyer[_nftID] = _buyer;
-        deadline[_nftID] = _deadline;
-        horseSeller[_nftID] = _seller;
+        // Transfer NFT from seller to this contract
+        IERC721(nftAddress).transferFrom(msg.sender, address(this), _tokenId);
+
+        isListed[_tokenId] = true;
+        goalAmount[_tokenId] = _goalAmount;
+        deadline[_tokenId] = _deadline;
+        horseSeller[_tokenId] = sellerPayable;
     }
 
     // Update Veterinarian Status (only veterinarian)
     function updateVeterinarianStatus(
-        uint256 _nftID,
+        uint256 _tokenId,
         bool _passed
     ) public onlyVeterinarian {
-        veterinarianPassed[_nftID] = _passed;
+        veterinarianPassed[_tokenId] = _passed;
     }
 
     // Approve Sale

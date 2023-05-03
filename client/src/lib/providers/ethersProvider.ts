@@ -116,7 +116,7 @@ class EthersProvider {
   };
 }
 
-  get roleManagerContract() {
+  getRoleManagerContract() {
     const contract = this.getContract({
       abi: roleManagerABI.abi,
       address: RoleManagerAddress,
@@ -146,15 +146,15 @@ class EthersProvider {
       revokeRoleFromDAO: async (address: string) => {
         return await contract.revokeRoleFromDAO(address);
       },
-      grantRoleToDefaultAdmin: async (address: string) => {
+      grantRoleToAdmin: async (address: string) => {
         return await contract.grantRoleToDefaultAdmin(address);
       },
-      revokeRoleFromDefaultAdmin: async (address: string) => {
+      revokeRoleFromAdmin: async (address: string) => {
         return await contract.revokeRoleFromDefaultAdmin(address);
       },
     };
   }
-  gethorseMarketContract() {
+  getHorseMarketContract() {
     console.log("Getting horseMarketContract");
     const contract = this.getContract({
       abi: horseMarketABI.abi,
@@ -162,9 +162,18 @@ class EthersProvider {
     });
     // Add the rest of the HorseMarket contract methods here and return the object
     return {
-      listHorseForSale: async (tokenId: number, saleType: number, price: number, deadline: number, seller: string) => {
-        const result = await contract.methods.listHorseForSale(tokenId, saleType, price,  deadline, seller).send({ from: this.account });
-        return result;
+      listHorseForSale: async (tokenId: number, saleType: string, price: number, deadline: number) => {
+        console.log("Getting tokenId", tokenId);
+        console.log("Getting saleType", saleType);
+        console.log("Getting price", price);
+        console.log("Getting deadline", deadline);
+        console.log("Getting contract", contract);
+        try {
+          const result = await contract.methods.listHorseForSale(tokenId, saleType, price, deadline).send({ from: this.account });
+          return result;
+        } catch (error) {
+          console.error('Error listing horse for sale:', error);
+        }
       },
       buyHorse: async (tokenId: number, paymentAmount: number) => {
         const result = await contract.methods.buyHorse(tokenId).send({ from: this.account, value: paymentAmount });
@@ -180,7 +189,7 @@ class EthersProvider {
       },
     };
   }
-  get raceHorseContract() {
+  getRaceHorseContract() {
     const contract = this.getContract({
       abi: raceHorseABI.abi,
       address: RaceHorseAddress,
@@ -228,8 +237,7 @@ class EthersProvider {
       },
     };
   }
-
-  get GBGSTokenContract() {
+  getGBGSTokenContract() {
     const contract = this.getContract({
       abi: GBGSTokenABI.abi,
       address: GBGSTokenAddress,
@@ -250,7 +258,7 @@ class EthersProvider {
       },
     };
   }
-  get BGSTokenContract() {
+  getBGSTokenContract() {
     const contract = this.getContract({
       abi: BGSTokenABI.abi,
       address: BGSTokenAddress,
