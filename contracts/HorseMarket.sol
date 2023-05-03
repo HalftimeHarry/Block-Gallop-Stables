@@ -64,7 +64,7 @@ contract HorseMarket {
         uint256 price,
         uint256 goalAmount,
         uint256 deadline,
-        address buyer
+        address seller
     ) external {
         require(
             _raceHorseContract.ownerOf(tokenId) == msg.sender,
@@ -110,7 +110,7 @@ contract HorseMarket {
 
         escrow.list(
             tokenId,
-            buyer, // Include the buyer address when listing the horse
+            seller, // Include the buyer address when listing the horse
             price,
             goalAmount,
             deadline,

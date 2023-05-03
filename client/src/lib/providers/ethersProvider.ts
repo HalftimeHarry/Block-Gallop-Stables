@@ -162,8 +162,8 @@ class EthersProvider {
     });
     // Add the rest of the HorseMarket contract methods here and return the object
     return {
-      listHorseForSale: async (tokenId: number, saleType: number, price: number, deadline: number, goalAmount: number, buyer: string) => {
-        const result = await contract.methods.listHorseForSale(tokenId, saleType, price, goalAmount, deadline, buyer).send({ from: this.account });
+      listHorseForSale: async (tokenId: number, saleType: number, price: number, deadline: number, seller: string) => {
+        const result = await contract.methods.listHorseForSale(tokenId, saleType, price,  deadline, seller).send({ from: this.account });
         return result;
       },
       buyHorse: async (tokenId: number, paymentAmount: number) => {
