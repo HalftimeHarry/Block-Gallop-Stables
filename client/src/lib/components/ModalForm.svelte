@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { NFTStorage, File } from 'nft.storage';
-	import { RaceHorseController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/RaceHorseController';
+	import { onMount } from 'svelte';
+	import { RoleManagerController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/RoleManagerController';
 	import { HorseMarketController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/HorseMarketController';
-
+	import navbarController from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/NavbarController';
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: any;
@@ -13,6 +14,14 @@
 
 	// Stores
 	import { modalStore } from '@skeletonlabs/skeleton';
+
+	const { nav_store } = navbarController;
+
+	onMount(async () => {
+		await navbarController.init();
+	});
+
+	$: ({ address, balance } = $nav_store);
 
 	// Import HorseImput type
 	import type { HorseInput } from '/workspace/Block-Gallop-Stables/client/src/HorseInput';
@@ -48,6 +57,7 @@
 	};
 
 	import { DateInput } from 'date-picker-svelte';
+
 	let deadline = new Date();
 
 	function dataURLtoFile(dataurl, filename) {
@@ -85,19 +95,23 @@
 
 	async function onFormSubmit(): Promise<void> {
 		const horseMarketController = new HorseMarketController();
-		const { tokenId = 1, saleType, price, deadline } = formData;
+		const roleManagerController = new RoleManagerController();
 
 		try {
 			await horseMarketController.init();
-			console.log(horseMarketController);
+			const { tokenId = 1, saleType, price, deadline } = formData;
 			await horseMarketController.listHorseForSale(tokenId, saleType, price, deadline);
-			if ($modalStore[0].response) $modalStore[0].response(formData);
+
+			await roleManagerController.grantRoleToSeller(address);
 			await storeNFT();
+
+			if ($modalStore[0].response) $modalStore[0].response(formData);
 			modalStore.close();
 		} catch (error) {
 			console.error('Error listing horse for sale:', error);
 		}
 	}
+
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';

@@ -2,6 +2,9 @@ import EthersProvider from "/workspace/Block-Gallop-Stables/client/src/lib/provi
 
 
 export class HorseMarketController {
+	account(account: any) {
+		throw new Error('Method not implemented.');
+	}
   ethersProvider: EthersProvider;
   horseMarketContract: any;
 static listHorseForSale: any;
@@ -12,9 +15,8 @@ static init: any;
   }
 
   async init() {
-    this.horseMarketContract = await this.ethersProvider.getHorseMarketContract();
-    // Add any necessary event listeners or subscriptions here
-        console.log(this.horseMarketContract);
+    this.horseMarketContract = this.ethersProvider.getHorseMarketContract();
+    console.log(this.horseMarketContract);
   }
 
   async listHorseForSale(tokenId: number, saleType: number, price: number, deadline: number) {

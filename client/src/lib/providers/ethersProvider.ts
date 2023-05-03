@@ -5,6 +5,8 @@ import GBGSTokenABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/GB
 import BGSTokenABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/BGSToken.sol/BGSToken.json";
 import roleManagerABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/RoleManager.sol/RoleManager.json";
 import horseMarketABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/HorseMarket.sol/HorseMarket.json";
+import metamaskController from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/MetamaskController';
+
 import {
     HorseEcrowAddress,
     RaceHorseAddress,
@@ -17,6 +19,11 @@ import {
 
 
 class EthersProvider {
+  async getDefaultAccount() {
+    await metamaskController.init();
+    return metamaskController.store.activeAccount;
+  }
+
   provider: ethers.providers.Web3Provider;
   signer: ethers.providers.JsonRpcSigner;
   account: string;
@@ -146,10 +153,10 @@ class EthersProvider {
       revokeRoleFromDAO: async (address: string) => {
         return await contract.revokeRoleFromDAO(address);
       },
-      grantRoleToAdmin: async (address: string) => {
+      grantRoleToDefaultAdmin: async (address: string) => {
         return await contract.grantRoleToDefaultAdmin(address);
       },
-      revokeRoleFromAdmin: async (address: string) => {
+      revokeRoleFromDefaultAdmin: async (address: string) => {
         return await contract.revokeRoleFromDefaultAdmin(address);
       },
     };
@@ -163,11 +170,7 @@ class EthersProvider {
     // Add the rest of the HorseMarket contract methods here and return the object
     return {
       listHorseForSale: async (tokenId: number, saleType: string, price: number, deadline: number) => {
-        console.log("Getting tokenId", tokenId);
-        console.log("Getting saleType", saleType);
-        console.log("Getting price", price);
-        console.log("Getting deadline", deadline);
-        console.log("Getting contract", contract);
+        console.log("This account", this.account);
         try {
           const result = await contract.methods.listHorseForSale(tokenId, saleType, price, deadline).send({ from: this.account });
           return result;
