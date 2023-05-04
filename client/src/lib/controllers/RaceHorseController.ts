@@ -1,6 +1,9 @@
 import EthersProvider from "/workspace/Block-Gallop-Stables/client/src/lib/providers/ethersProvider";
 
 export class RaceHorseController {
+	grantRoleToSeller(account: any) {
+		throw new Error('Method not implemented.');
+	}
     ethersProvider: EthersProvider;
     raceHorseContract: any;
 
@@ -47,18 +50,20 @@ export class RaceHorseController {
         tokenId: number,
         saleType: number,
         price: number,
-        deadline: number
+        deadline: number,
+        account: number
     ) {
         console.log(
             "Calling listHorseForSale",
-            `tokenId: ${tokenId}, saleType: ${saleType}, price: ${price}, deadline: ${deadline}`
+            `tokenId: ${tokenId}, saleType: ${saleType}, price: ${price}, deadline: ${deadline}, account: ${account}`
         );
         try {
             const result = await this.raceHorseContract.listHorseForSale(
                 tokenId,
                 saleType,
                 price,
-                deadline
+                deadline,
+                account
             );
             console.log("List horse for sale result: ", result);
             return result;
