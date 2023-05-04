@@ -16,18 +16,18 @@ static init: any;
     // Add any necessary event listeners or subscriptions here
   }
 
-  async listHorseForSale(tokenId: number, saleType: string, price: number, deadline: number) {
-    const account = await this.ethersProvider.getSignerAddress();
-    console.log(`tokenId: ${tokenId}, saleType: ${saleType}, price: ${price}, deadline: ${deadline}, account: ${account}`);
-    try {
-      const result = await this.horseMarketContract.listHorseForSale(tokenId, saleType, price, deadline, account);
-      console.log("List horse for sale result: ", result);
-      return result;
-    } catch (error) {
-      console.error("Error listing horse for sale: ", error);
-      throw error;
+    async listHorseForSale(tokenId: number, saleType: string, price: number, deadline: number, account: string) {
+      const signer = await this.ethersProvider.getSignerAddress()
+      console.log(`tokenId: ${tokenId}, saleType: ${saleType}, price: ${price}, deadline: ${deadline}, account: ${account}`);
+      try {
+        const result = await this.horseMarketContract.listHorseForSale(tokenId, saleType, price, deadline, account, {from: signer});
+        console.log("List horse for sale result: ", result);
+        return result;
+      } catch (error) {
+        console.error("Error listing horse for sale: ", error);
+        throw error;
+      }
     }
   }
-}
 
 export default HorseMarketController;
