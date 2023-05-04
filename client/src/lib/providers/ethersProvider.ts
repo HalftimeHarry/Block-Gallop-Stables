@@ -31,6 +31,11 @@ class EthersProvider {
     }
   }
 
+  async getSignerAddress(): Promise<string> {
+    const address = await this.signer.getAddress();
+    return address;
+  }
+
   setAccount(account: string) {
     this.account = account;
   }
@@ -155,25 +160,19 @@ class EthersProvider {
     };
   }
   getHorseMarketContract() {
-    console.log("Getting horseMarketContract");
     const contract = this.getContract({
       abi: horseMarketABI.abi,
       address: HorseMarketAddress,
     });
     // Add the rest of the HorseMarket contract methods here and return the object
     return {
-      listHorseForSale: async (tokenId: number, saleType: string, price: number, deadline: number) => {
-        console.log("Getting tokenId", tokenId);
-        console.log("Getting saleType", saleType);
-        console.log("Getting price", price);
-        console.log("Getting deadline", deadline);
-        console.log("Getting contract", contract);
-        try {
-          const result = await contract.methods.listHorseForSale(tokenId, saleType, price, deadline).send({ from: this.account });
-          return result;
-        } catch (error) {
-          console.error('Error listing horse for sale:', error);
-        }
+      listHorseForSale: async (tokenId: number, saleType: string, price: number, deadline: number, account: string) => {
+          try {
+            const result = await contract.listHorseForSale(tokenId, saleType, price, deadline, account);
+            return result;
+          } catch (error) {
+            console.error('Error listing horse for sale:', error);
+          }
       },
       buyHorse: async (tokenId: number, paymentAmount: number) => {
         const result = await contract.methods.buyHorse(tokenId).send({ from: this.account, value: paymentAmount });

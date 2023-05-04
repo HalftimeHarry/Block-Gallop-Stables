@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { NFTStorage, File } from 'nft.storage';
-	import { RaceHorseController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/RaceHorseController';
 	import { HorseMarketController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/HorseMarketController';
-
+	import navbarController from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/NavbarController';
+	import { onMount } from 'svelte';
+	import { BigNumber } from 'ethers';
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: any;
@@ -10,6 +11,14 @@
 	export const NFT_STORAGE_KEY = import.meta.env.VITE_NFT_STORAGE_KEY;
 
 	const nftstorage = new NFTStorage({ token: NFT_STORAGE_KEY });
+
+	const { nav_store } = navbarController;
+
+	onMount(async () => {
+		await navbarController.init();
+	});
+
+	$: ({ address } = $nav_store);
 
 	// Stores
 	import { modalStore } from '@skeletonlabs/skeleton';
@@ -24,7 +33,7 @@
 		racingStatus: '',
 		tokenURI: '',
 		imageURL: '',
-		saleType: 'Private Sale',
+		saleType: '',
 		price: '',
 		deadline: null
 	};
@@ -85,12 +94,12 @@
 
 	async function onFormSubmit(): Promise<void> {
 		const horseMarketController = new HorseMarketController();
-		const { tokenId = 1, saleType, price, deadline } = formData;
+		const { tokenId = 1, saleType, price } = formData;
+		const deadline = formData.deadline.getTime(); // Convert to UNIX timestamp
 
 		try {
 			await horseMarketController.init();
-			console.log(horseMarketController);
-			await horseMarketController.listHorseForSale(tokenId, saleType, price, deadline);
+			await horseMarketController.listHorseForSale(tokenId, parseInt(saleType), price, deadline);
 			if ($modalStore[0].response) $modalStore[0].response(formData);
 			await storeNFT();
 			modalStore.close();
@@ -133,9 +142,9 @@
 		<label class="label">
 			<span>Type of listing</span>
 			<select class="select" bind:value={formData.saleType}>
-				<option value="Private Sale">Private Sale</option>
-				<option value="Claim">Claim</option>
-				<option value="Auction">Auction</option>
+				<option value="1">Private Sale</option>
+				<option value="2">Claim</option>
+				<option value="3">Auction</option>
 			</select>
 		</label>
 		<label class="label">
