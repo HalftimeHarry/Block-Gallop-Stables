@@ -1,6 +1,9 @@
 import EthersProvider from "/workspace/Block-Gallop-Stables/client/src/lib/providers/ethersProvider";
 
 export class RaceHorseController {
+	grantRoleToSeller(account: any) {
+		throw new Error('Method not implemented.');
+	}
     ethersProvider: EthersProvider;
     raceHorseContract: any;
 
