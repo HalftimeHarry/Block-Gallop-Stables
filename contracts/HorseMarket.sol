@@ -66,7 +66,7 @@ contract HorseMarket {
         address account // <--- add this argument
     ) external {
         require(
-            _raceHorseContract.ownerOf(tokenId) == msg.sender,
+            _raceHorseContract.ownerOf(tokenId) == account, // use account instead of msg.sender
             "Caller must be token owner"
         );
         require(
