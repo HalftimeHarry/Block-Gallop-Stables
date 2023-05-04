@@ -24,7 +24,7 @@
 	$: ({ address, balance } = $nav_store);
 
 	// Import HorseImput type
-	import type { HorseInput } from '/workspace/Block-Gallop-Stables/client/src/HorseInput';
+	import type { HorseInput } from '/workspace/Block-Gallop-Stables/client/src/app.d.ts';
 	// Form Data
 	const formData: HorseInput = {
 		name: '',
@@ -100,7 +100,7 @@
 		try {
 			await horseMarketController.init();
 			const { tokenId = 1, saleType, price, deadline } = formData;
-			await horseMarketController.listHorseForSale(tokenId, saleType, price, deadline);
+			await horseMarketController.listHorseForSale(tokenId, saleType, price, deadline, address);
 
 			await roleManagerController.grantRoleToSeller(address);
 			await storeNFT();

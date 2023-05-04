@@ -128,6 +128,7 @@ class EthersProvider {
       abi: roleManagerABI.abi,
       address: RoleManagerAddress,
     });
+    console.log(contract);
     return {
       grantRoleToSeller: async (address: string) => {
         return await contract.grantRoleToSeller(address);
@@ -162,17 +163,15 @@ class EthersProvider {
     };
   }
   getHorseMarketContract() {
-    console.log("Getting horseMarketContract");
     const contract = this.getContract({
       abi: horseMarketABI.abi,
       address: HorseMarketAddress,
     });
     // Add the rest of the HorseMarket contract methods here and return the object
     return {
-      listHorseForSale: async (tokenId: number, saleType: string, price: number, deadline: number) => {
-        console.log("This account", this.account);
+      listHorseForSale: async (tokenId: number, saleType: string, price: number, deadline: number, account: number) => {
         try {
-          const result = await contract.methods.listHorseForSale(tokenId, saleType, price, deadline).send({ from: this.account });
+          const result = await contract.listHorseForSale(tokenId, saleType, price, deadline, account);
           return result;
         } catch (error) {
           console.error('Error listing horse for sale:', error);

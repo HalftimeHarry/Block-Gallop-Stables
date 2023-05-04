@@ -1,31 +1,30 @@
 import EthersProvider from "/workspace/Block-Gallop-Stables/client/src/lib/providers/ethersProvider";
 
 export class RoleManagerController {
-    ethersProvider: EthersProvider;
-    roleManagerContract: any;
+  ethersProvider: EthersProvider;
+  roleManagerContract: any;
 
-    constructor() {
-        this.ethersProvider = new EthersProvider();
+  constructor() {
+    this.ethersProvider = new EthersProvider();
+  }
+
+  async init() {
+    this.roleManagerContract = await this.ethersProvider.getRoleManagerContract();
+    // Add any necessary event listeners or subscriptions here
+    console.log("roleManagerContract: ", this.roleManagerContract);
+  }
+
+  async grantRoleToSeller(address: string) {
+    console.log("Calling grantRoleToSeller", `address: ${address}`);
+    try {
+        const result = this.ethersProvider.getRoleManagerContract;
+      console.log("Grant role to seller result: ", result);
+      return result;
+    } catch (error) {
+      console.error("Error granting role to seller: ", error);
+      throw error;
     }
-
-    async init() {
-        this.roleManagerContract = await this.ethersProvider.getRoleManagerContract();
-        // Add any necessary event listeners or subscriptions here
-        console.log(this.roleManagerContract);
-    }
-
-
-    async grantRoleToSeller(address: string) {
-        console.log("Calling grantRoleToSeller", `address: ${address}`);
-        try {
-            const result = await this.roleManagerContract.grantRoleToSeller(address);
-            console.log("Grant role to seller result: ", result);
-            return result;
-        } catch (error) {
-            console.error("Error granting role to seller: ", error);
-            throw error;
-        }
-    }
+  }
 
     async revokeRoleFromSeller(address: string) {
         console.log("Calling revokeRoleFromSeller", `address: ${address}`);

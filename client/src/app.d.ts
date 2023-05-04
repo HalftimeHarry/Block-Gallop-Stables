@@ -7,3 +7,15 @@ declare namespace App {
 	// interface Error {}
 	// interface Platform {}
 }
+
+interface HorseInput {
+  name: string;
+  age: number;
+  breed: string;
+  racingStatus: string;
+  tokenURI: string;
+  imageURL: string;
+  saleType: string;
+  price: number;
+  deadline: Date | null;
+}
