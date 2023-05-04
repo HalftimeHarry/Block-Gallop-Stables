@@ -5,8 +5,6 @@ import GBGSTokenABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/GB
 import BGSTokenABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/BGSToken.sol/BGSToken.json";
 import roleManagerABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/RoleManager.sol/RoleManager.json";
 import horseMarketABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/HorseMarket.sol/HorseMarket.json";
-import metamaskController from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/MetamaskController';
-
 import {
     HorseEcrowAddress,
     RaceHorseAddress,
@@ -19,11 +17,6 @@ import {
 
 
 class EthersProvider {
-  async getDefaultAccount() {
-    await metamaskController.init();
-    return metamaskController.store.activeAccount;
-  }
-
   provider: ethers.providers.Web3Provider;
   signer: ethers.providers.JsonRpcSigner;
   account: string;
@@ -36,6 +29,11 @@ class EthersProvider {
     } else {
       console.error("Window object is not available");
     }
+  }
+
+  async getSignerAddress(): Promise<string> {
+    const address = await this.signer.getAddress();
+    return address;
   }
 
   setAccount(account: string) {
@@ -128,7 +126,6 @@ class EthersProvider {
       abi: roleManagerABI.abi,
       address: RoleManagerAddress,
     });
-    console.log(contract);
     return {
       grantRoleToSeller: async (address: string) => {
         return await contract.grantRoleToSeller(address);
@@ -154,10 +151,10 @@ class EthersProvider {
       revokeRoleFromDAO: async (address: string) => {
         return await contract.revokeRoleFromDAO(address);
       },
-      grantRoleToDefaultAdmin: async (address: string) => {
+      grantRoleToAdmin: async (address: string) => {
         return await contract.grantRoleToDefaultAdmin(address);
       },
-      revokeRoleFromDefaultAdmin: async (address: string) => {
+      revokeRoleFromAdmin: async (address: string) => {
         return await contract.revokeRoleFromDefaultAdmin(address);
       },
     };
@@ -169,13 +166,13 @@ class EthersProvider {
     });
     // Add the rest of the HorseMarket contract methods here and return the object
     return {
-      listHorseForSale: async (tokenId: number, saleType: string, price: number, deadline: number, account: number) => {
-        try {
-          const result = await contract.listHorseForSale(tokenId, saleType, price, deadline, account);
-          return result;
-        } catch (error) {
-          console.error('Error listing horse for sale:', error);
-        }
+      listHorseForSale: async (tokenId: number, saleType: string, price: number, deadline: number, account: string) => {
+          try {
+            const result = await contract.listHorseForSale(tokenId, saleType, price, deadline, account);
+            return result;
+          } catch (error) {
+            console.error('Error listing horse for sale:', error);
+          }
       },
       buyHorse: async (tokenId: number, paymentAmount: number) => {
         const result = await contract.methods.buyHorse(tokenId).send({ from: this.account, value: paymentAmount });

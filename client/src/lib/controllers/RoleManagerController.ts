@@ -17,7 +17,7 @@ export class RoleManagerController {
   async grantRoleToSeller(address: string) {
     console.log("Calling grantRoleToSeller", `address: ${address}`);
     try {
-        const result = this.ethersProvider.getRoleManagerContract;
+        const result = this.ethersProvider.getRoleManagerContract.grantRoleToSeller(address);
       console.log("Grant role to seller result: ", result);
       return result;
     } catch (error) {

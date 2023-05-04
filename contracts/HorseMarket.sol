@@ -62,7 +62,8 @@ contract HorseMarket {
         uint256 tokenId,
         SaleType saleType,
         uint256 price,
-        uint256 deadline
+        uint256 deadline,
+        address account // <--- add this argument
     ) external {
         require(
             _raceHorseContract.ownerOf(tokenId) == msg.sender,

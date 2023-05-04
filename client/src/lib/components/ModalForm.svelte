@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { NFTStorage, File } from 'nft.storage';
-	import { onMount } from 'svelte';
-	import { RoleManagerController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/RoleManagerController';
 	import { HorseMarketController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/HorseMarketController';
 	import navbarController from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/NavbarController';
+	import { onMount } from 'svelte';
+	import { BigNumber } from 'ethers';
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: any;
@@ -12,19 +12,19 @@
 
 	const nftstorage = new NFTStorage({ token: NFT_STORAGE_KEY });
 
-	// Stores
-	import { modalStore } from '@skeletonlabs/skeleton';
-
 	const { nav_store } = navbarController;
 
 	onMount(async () => {
 		await navbarController.init();
 	});
 
-	$: ({ address, balance } = $nav_store);
+	$: ({ address } = $nav_store);
+
+	// Stores
+	import { modalStore } from '@skeletonlabs/skeleton';
 
 	// Import HorseImput type
-	import type { HorseInput } from '/workspace/Block-Gallop-Stables/client/src/app.d.ts';
+	import type { HorseInput } from '/workspace/Block-Gallop-Stables/client/src/HorseInput';
 	// Form Data
 	const formData: HorseInput = {
 		name: '',
@@ -33,7 +33,7 @@
 		racingStatus: '',
 		tokenURI: '',
 		imageURL: '',
-		saleType: 'Private Sale',
+		saleType: '',
 		price: '',
 		deadline: null
 	};
@@ -57,7 +57,6 @@
 	};
 
 	import { DateInput } from 'date-picker-svelte';
-
 	let deadline = new Date();
 
 	function dataURLtoFile(dataurl, filename) {
@@ -95,23 +94,19 @@
 
 	async function onFormSubmit(): Promise<void> {
 		const horseMarketController = new HorseMarketController();
-		const roleManagerController = new RoleManagerController();
+		const { tokenId = 1, saleType, price } = formData;
+		const deadline = formData.deadline.getTime(); // Convert to UNIX timestamp
 
 		try {
 			await horseMarketController.init();
-			const { tokenId = 1, saleType, price, deadline } = formData;
-			await horseMarketController.listHorseForSale(tokenId, saleType, price, deadline, address);
-
-			await roleManagerController.grantRoleToSeller(address);
-			await storeNFT();
-
+			await horseMarketController.listHorseForSale(tokenId, parseInt(saleType), price, deadline);
 			if ($modalStore[0].response) $modalStore[0].response(formData);
+			await storeNFT();
 			modalStore.close();
 		} catch (error) {
 			console.error('Error listing horse for sale:', error);
 		}
 	}
-
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
@@ -147,9 +142,9 @@
 		<label class="label">
 			<span>Type of listing</span>
 			<select class="select" bind:value={formData.saleType}>
-				<option value="Private Sale">Private Sale</option>
-				<option value="Claim">Claim</option>
-				<option value="Auction">Auction</option>
+				<option value="1">Private Sale</option>
+				<option value="2">Claim</option>
+				<option value="3">Auction</option>
 			</select>
 		</label>
 		<label class="label">
