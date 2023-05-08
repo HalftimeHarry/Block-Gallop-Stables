@@ -3,6 +3,7 @@
 	import navbarController from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/NavbarController';
 	import EthersProvider from '../providers/ethersProvider.js';
 	import { RaceHorseController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/RaceHorseController';
+	import { HorseMarketController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/HorseMarketController';
 	import { onMount } from 'svelte';
 
 	// Props
@@ -86,57 +87,50 @@
 
 		const ipnft = await nftstorage.store(tokenInput);
 
-		// Do something with ipnft, e.g., store it in formData
-		formData.tokenURI = ipnft.url;
-
 		// Log the created NFT URL
-		console.log('Created NFT: ', ipnft.url);
+		const uri = `https://ipfs.io/ipfs/${ipnft.ipnft}/metadata.json`;
+		console.log(uri);
+
+		// Do something with ipnft, e.g., store it in formData
+		formData.tokenURI = uri;
 	}
 
-	async function onFormSubmit(): Promise<void> {
-		const ethersProvider = new EthersProvider();
-		const raceHorseController = new RaceHorseController();
-		const { name, age, breed, racingStats, tokenURI, imageURL, saleType, price } = formData;
-		const deadline = formData.deadline.getTime(); // Convert to UNIX timestamp
-
-		try {
-			await raceHorseController.init();
-			const account = await ethersProvider.getConnectedAccount();
-			ethersProvider.setAccount(account);
-
-			// Call the createHorse method with the form data
-			const result = await raceHorseController.createHorse(
-				name,
-				age,
-				breed,
-				racingStats,
-				tokenURI,
-				imageURL
-			);
-
-			// Get the new token ID from the result object
-			const newTokenId = result.events.Transfer[0].args.tokenId.toNumber();
-
-			// List the NFT for sale using the RaceHorseController listHorseForSale method
-			const tx = await raceHorseController.listHorseForSale(
-				newTokenId,
-				parseInt(saleType),
-				price,
-				deadline,
-				account
-			);
-			console.log(tx);
-
-			// Once the transaction is submitted, you can open the wallet provider to confirm and pay for the transaction
-			await tx.wait();
-
-			if ($modalStore[0].response) $modalStore[0].response(formData);
-			await storeNFT();
-			modalStore.close();
-		} catch (error) {
-			console.error('Error creating horse or listing it for sale:', error);
-		}
+	async function getNewTokenId(raceHorseController: RaceHorseController): Promise<number> {
+		const totalSupply = await raceHorseController.getTotalSupply();
+		return totalSupply.toNumber() + 1;
 	}
+
+async function onFormSubmit(): Promise<void> {
+  const raceHorseController = new RaceHorseController();
+  const horseMarketController = new HorseMarketController();
+  const saleType = parseInt(formData.saleType);
+  const price = formData.price;
+  const deadline = formData.deadline ?? new Date();
+
+  try {
+    await raceHorseController.init();
+    await horseMarketController.init();
+
+    // Store the NFT and set the tokenURI
+    await storeNFT();
+
+    // Get the new tokenId
+    const tokenId = await getNewTokenId(raceHorseController);
+
+    // Check the owner of the NFT with tokenId
+    const owner = await horseMarketController.getNFTOwner(raceHorseController, tokenId);
+    console.log(`The owner of the NFT with tokenId ${tokenId} is: ${owner}`);
+
+    // List the horse for sale with the new tokenId
+    await horseMarketController.listHorseForSale(tokenId, saleType, price, deadline, address);
+
+    if ($modalStore[0].response) $modalStore[0].response(formData);
+    modalStore.close();
+  } catch (error) {
+    console.error('Error listing horse for sale:', error);
+  }
+}
+
 
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';

@@ -166,7 +166,7 @@ class EthersProvider {
     });
     // Add the rest of the HorseMarket contract methods here and return the object
     return {
-      listHorseForSale: async (tokenId: number, saleType: string, price: number, deadline: number, account: string) => {
+      listHorseForSale: async (tokenId: number, saleType: number, price: number, deadline: number, account: string) => {
           try {
             const result = await contract.listHorseForSale(tokenId, saleType, price, deadline, account);
             return result;
@@ -195,7 +195,8 @@ class EthersProvider {
     });
     // Add the rest of the raceHorseContract methods here and return the object
     return {
-      getTotalSupply: async () => await contract.totalSupply(),
+      totalSupply: async () => await contract.totalSupply(),
+      ownerOf: async (tokenId) => await contract.ownerOf(tokenId),
       getTokenURI: async () => {
         const nfts = [];
         const totalSupply = await contract.totalSupply();
@@ -208,14 +209,14 @@ class EthersProvider {
         return nfts;
       },
       mintHorse: async (
-        name,
-        age,
-        breed,
-        racingStats,
-        tokenURI,
-        imageURL,
-        saleType,
-        price
+        name: any,
+        age: any,
+        breed: any,
+        racingStats: any,
+        tokenURI: any,
+        imageURL: any,
+        saleType: any,
+        price: any
       ) => {
         try {
           const tx = await contract.mintHorse(
