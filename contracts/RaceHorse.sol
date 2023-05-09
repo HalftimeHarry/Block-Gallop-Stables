@@ -34,7 +34,7 @@ contract RaceHorse is ERC721URIStorage, AccessControl {
     }
 
     // Mapping to store HorseData
-    mapping(uint256 => string) private _horseData;
+    mapping(uint256 => HorseData) private _horseData;
 
     // Constructor
     constructor() ERC721("RaceHorse", "HRS") {
@@ -51,7 +51,16 @@ contract RaceHorse is ERC721URIStorage, AccessControl {
     }
 
     // Function to mint a new horse
-    function mintHorse(string memory tokenURI) public returns (uint256) {
+    function mintHorse(
+        string memory name,
+        uint16 age,
+        string memory breed,
+        string memory racingStats,
+        string memory tokenURI,
+        string memory imageURL,
+        SaleType saleType,
+        uint256 price
+    ) public returns (uint256) {
         // Check if the account has the SELLER_ROLE, if not, assign it
         if (!hasRole(SELLER_ROLE, msg.sender)) {
             grantRole(SELLER_ROLE, msg.sender);
@@ -63,7 +72,16 @@ contract RaceHorse is ERC721URIStorage, AccessControl {
         _mint(msg.sender, newItemId);
         _setTokenURI(newItemId, tokenURI);
 
-        _horseData[newItemId] = tokenURI;
+        _horseData[newItemId] = HorseData({
+            name: name,
+            age: age,
+            breed: breed,
+            racingStats: racingStats,
+            tokenURI: tokenURI,
+            imageURL: imageURL,
+            saleType: saleType,
+            price: price
+        });
 
         return newItemId;
     }
@@ -74,7 +92,9 @@ contract RaceHorse is ERC721URIStorage, AccessControl {
     }
 
     // Function to get HorseData for a specific token ID
-    function getHorseData(uint256 tokenId) public view returns (string memory) {
+    function getHorseData(
+        uint256 tokenId
+    ) public view returns (HorseData memory) {
         require(_exists(tokenId), "Token ID does not exist");
         return _horseData[tokenId];
     }

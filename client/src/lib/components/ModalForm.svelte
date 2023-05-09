@@ -100,37 +100,37 @@
 		return totalSupply.toNumber() + 1;
 	}
 
-async function onFormSubmit(): Promise<void> {
-  const raceHorseController = new RaceHorseController();
-  const horseMarketController = new HorseMarketController();
-  const saleType = parseInt(formData.saleType);
-  const price = formData.price;
-  const deadline = formData.deadline ?? new Date();
+	async function onFormSubmit(): Promise<void> {
+		const raceHorseController = new RaceHorseController();
+		const horseMarketController = new HorseMarketController();
+		const saleType = parseInt(formData.saleType);
+		const price = formData.price;
+		const deadline = formData.deadline ?? new Date();
 
-  try {
-    await raceHorseController.init();
-    await horseMarketController.init();
+		try {
+			await raceHorseController.init();
+			await horseMarketController.init();
 
-    // Store the NFT and set the tokenURI
-    await storeNFT();
+			// Store the NFT and set the tokenURI
+			await storeNFT();
 
-    // Get the new tokenId
-    const tokenId = await getNewTokenId(raceHorseController);
+			// Get the new tokenId using the getNewTokenId function
+			const tokenId = await getNewTokenId(raceHorseController);
+			console.log(tokenId);
 
-    // Check the owner of the NFT with tokenId
-    const owner = await horseMarketController.getNFTOwner(raceHorseController, tokenId);
-    console.log(`The owner of the NFT with tokenId ${tokenId} is: ${owner}`);
+			// Check the owner of the NFT with tokenId
+			const owner = await horseMarketController.getNFTOwner(raceHorseController, tokenId);
+			console.log(`The owner of the NFT with tokenId ${tokenId} is: ${owner}`);
 
-    // List the horse for sale with the new tokenId
-    await horseMarketController.listHorseForSale(tokenId, saleType, price, deadline, address);
+			// List the horse for sale with the new tokenId
+			await horseMarketController.listHorseForSale(tokenId, saleType, price, deadline, address);
 
-    if ($modalStore[0].response) $modalStore[0].response(formData);
-    modalStore.close();
-  } catch (error) {
-    console.error('Error listing horse for sale:', error);
-  }
-}
-
+			if ($modalStore[0].response) $modalStore[0].response(formData);
+			modalStore.close();
+		} catch (error) {
+			console.error('Error listing horse for sale:', error);
+		}
+	}
 
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
