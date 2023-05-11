@@ -5,7 +5,7 @@ npx hardhat test
 REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.ts
-npx hardhat run scripts/deploy.ts --network localhost
+npx hardhat run /workspace/Block-Gallop-Stables/scripts/deploy.ts --network localhost
 
 BlockGallop Stables is a decentralized horse racing stable that leverages web3 technologies to bring transparency, efficiency, and community-driven governance to the world of horse racing. Our platform enables users to participate in the ownership, management, and success of thoroughbred racehorses through a blockchain-based platform and a decentralized autonomous organization (DAO).
 

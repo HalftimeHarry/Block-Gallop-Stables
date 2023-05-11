@@ -1,5 +1,5 @@
 import EthersProvider from "/workspace/Block-Gallop-Stables/client/src/lib/providers/ethersProvider";
-import RaceHorseController from "/path/to/RaceHorseController"; // Replace with the correct import path
+import RaceHorseController from "./HorseNFTController"; // Replace with the correct import path
 
 export class HorseMarketController {
   ethersProvider: EthersProvider;

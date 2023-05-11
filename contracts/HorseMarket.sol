@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "./RaceHorse.sol";
+import "./HorseNFT.sol";
 import "./HorseEscrow.sol" as EscrowContract;
 import "./HorseClaim.sol";
 
@@ -20,7 +20,7 @@ contract HorseMarket {
         uint256 auctionEndTime;
     }
 
-    RaceHorse private _raceHorseContract;
+    HorseNFT private _horseNFTContract;
     mapping(uint256 => Sale) private _horseSales;
 
     address private nftAddress;
@@ -43,14 +43,14 @@ contract HorseMarket {
     event HorseSaleCanceled(uint256 indexed tokenId);
 
     constructor(
-        address raceHorseContractAddress,
+        address horseNFTContractAddress,
         address _nftAddress,
         address _governanceTokenAddress,
         address _veterinarian,
         address _dao,
         address _horseTokenAddress
     ) {
-        _raceHorseContract = RaceHorse(raceHorseContractAddress);
+        _horseNFTContract = HorseNFT(horseNFTContractAddress);
         nftAddress = _nftAddress;
         governanceTokenAddress = _governanceTokenAddress;
         veterinarian = _veterinarian;
@@ -66,11 +66,11 @@ contract HorseMarket {
         address account // <--- add this argument
     ) external {
         require(
-            _raceHorseContract.ownerOf(tokenId) == account, // use account instead of msg.sender
+            _horseNFTContract.ownerOf(tokenId) == account, // use account instead of msg.sender
             "Caller must be token owner"
         );
         require(
-            _raceHorseContract.getApproved(tokenId) == address(this),
+            _horseNFTContract.getApproved(tokenId) == address(this),
             "Contract not approved for token"
         );
         require(
@@ -92,7 +92,7 @@ contract HorseMarket {
         emit HorseListed(tokenId, saleType, price);
 
         // Approve the HorseMarket contract to manage the token on behalf of the token owner
-        _raceHorseContract.approve(address(this), tokenId);
+        _horseNFTContract.approve(address(this), tokenId);
 
         // Create HorseEscrow contract
         EscrowContract.HorseEscrow escrow = new EscrowContract.HorseEscrow(
@@ -105,7 +105,7 @@ contract HorseMarket {
         );
 
         // Approve the HorseEscrow contract to handle the NFT on behalf of the seller
-        _raceHorseContract.approve(address(escrow), tokenId);
+        _horseNFTContract.approve(address(escrow), tokenId);
 
         escrow.list(tokenId, price, deadline);
 
@@ -115,13 +115,13 @@ contract HorseMarket {
     function buyHorse(uint256 tokenId) external payable {
         // Check if the account has the BUYER_ROLE, if not, assign it
         if (
-            !_raceHorseContract.hasRole(
-                _raceHorseContract.BUYER_ROLE(),
+            !_horseNFTContract.hasRole(
+                _horseNFTContract.BUYER_ROLE(),
                 msg.sender
             )
         ) {
-            _raceHorseContract.grantRole(
-                _raceHorseContract.BUYER_ROLE(),
+            _horseNFTContract.grantRole(
+                _horseNFTContract.BUYER_ROLE(),
                 msg.sender
             );
         }
@@ -137,11 +137,11 @@ contract HorseMarket {
 
         // Get the HorseEscrow contract associated with the tokenId
         EscrowContract.HorseEscrow escrow = EscrowContract.HorseEscrow(
-            payable(_raceHorseContract.getApproved(tokenId))
+            payable(_horseNFTContract.getApproved(tokenId))
         );
 
         // Transfer the NFT from the HorseEscrow contract to the buyer
-        _raceHorseContract.transferFrom(address(escrow), msg.sender, tokenId);
+        _horseNFTContract.transferFrom(address(escrow), msg.sender, tokenId);
 
         if (msg.value > sale.price) {
             payable(msg.sender).transfer(msg.value - sale.price);
@@ -157,7 +157,7 @@ contract HorseMarket {
         Sale storage sale = _horseSales[tokenId];
         require(sale.seller == msg.sender, "Not the owner of the horse");
 
-        _raceHorseContract.transferFrom(address(this), msg.sender, tokenId);
+        _horseNFTContract.transferFrom(address(this), msg.sender, tokenId);
         delete _horseSales[tokenId];
         emit HorseSaleCanceled(tokenId);
     }

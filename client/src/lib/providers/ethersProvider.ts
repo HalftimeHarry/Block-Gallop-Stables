@@ -1,13 +1,13 @@
 import { ethers } from "ethers";
 import horseEscrowABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/HorseEscrow.sol/HorseEscrow.json";
-import raceHorseABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/RaceHorse.sol/RaceHorse.json";
+import horseNFTABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/HorseNFT.sol/HorseNFT.json";
 import GBGSTokenABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/GBGSToken.sol/GBGSToken.json";
 import BGSTokenABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/BGSToken.sol/BGSToken.json";
 import roleManagerABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/RoleManager.sol/RoleManager.json";
 import horseMarketABI from "/workspace/Block-Gallop-Stables/artifacts/contracts/HorseMarket.sol/HorseMarket.json";
 import {
     HorseEcrowAddress,
-    RaceHorseAddress,
+    HorseNFTAddress,
     GBGSTokenAddress,
     BGSTokenAddress,
     RoleManagerAddress,
@@ -188,12 +188,10 @@ class EthersProvider {
       },
     };
   }
-  getRaceHorseContract() {
-    const contract = this.getContract({
-      abi: raceHorseABI.abi,
-      address: RaceHorseAddress,
+  getHorseNFTContract() { const contract = this.getContract({
+      abi: horseNFTABI.abi,
+      address: HorseNFTAddress,
     });
-    // Add the rest of the raceHorseContract methods here and return the object
     return {
       totalSupply: async () => await contract.totalSupply(),
       ownerOf: async (tokenId) => await contract.ownerOf(tokenId),
@@ -203,38 +201,19 @@ class EthersProvider {
         for (let i = 1; i <= totalSupply; i++) {
           const uri = await contract.tokenURI(i);
           const response = await fetch(uri);
-          const metadapp = await response.json();
-          nfts.push(metadapp);
+          const metadata = await response.json();
+          nfts.push(metadata);
         }
         return nfts;
       },
-      mintHorse: async (
-        name: any,
-        age: any,
-        breed: any,
-        racingStats: any,
-        tokenURI: any,
-        imageURL: any,
-        saleType: any,
-        price: any
-      ) => {
-        try {
-          const tx = await contract.mintHorse(
-            name,
-            age,
-            breed,
-            racingStats,
-            tokenURI,
-            imageURL,
-            saleType,
-            price
-          );
-          await tx.wait();
-          console.log("Horse minted successfully");
-        } catch (error) {
-          console.error("Error minting horse:", error);
-        }
-      },
+    mintHorse: async (uri) => {
+      try {
+        const transaction = await contract.connect(this.signer).mint(uri, { value: ethers.utils.parseUnits("1", "ether") })
+        await transaction.wait();
+      } catch (err) {
+        console.error(err);
+      }
+    },
     };
   }
   getGBGSTokenContract() {
