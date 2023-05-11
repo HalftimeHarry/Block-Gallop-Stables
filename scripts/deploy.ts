@@ -15,12 +15,12 @@ async function main() {
   const [owner, buyer, seller, veterinarian, dao] = await ethers.getSigners();
   console.log("Deploying contracts with the account:", seller.address);
 
-  // Deploy Race Horse
-  const RaceHorse = await ethers.getContractFactory('RaceHorse');
-  const raceHorse = await RaceHorse.deploy();
-  await raceHorse.deployed();
+  // Deploy HorseNFT
+  const HorseNFT = await ethers.getContractFactory('HorseNFT');
+  const horseNFT = await HorseNFT.deploy(100); // pass the value of _cost here
+  await horseNFT.deployed();
 
-  console.log(`Deployed RaceHorse Contract at: ${raceHorse.address}`);
+  console.log(`Deployed HorseNFT Contract at: ${horseNFT.address}`);
 
   // Deploy GBGSToken
   const GBGSToken = await ethers.getContractFactory('GBGSToken');
@@ -50,7 +50,7 @@ async function main() {
   // In your deploy.ts script
   const HorseEscrow = await ethers.getContractFactory("HorseEscrow");
   const horseEscrow = await HorseEscrow.deploy(
-    raceHorse.address,
+    horseNFT.address,
     governanceToken.address,
     seller.address,
     veterinarian.address,
@@ -63,7 +63,7 @@ async function main() {
 
   const HorseMarket = await ethers.getContractFactory("HorseMarket");
   const horseMarket = await HorseMarket.deploy(
-    raceHorse.address,
+    horseNFT.address,
     governanceToken.address,
     seller.address,
     veterinarian.address,

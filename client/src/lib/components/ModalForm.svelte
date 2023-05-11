@@ -2,7 +2,7 @@
 	import { NFTStorage, File } from 'nft.storage';
 	import navbarController from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/NavbarController';
 	import EthersProvider from '../providers/ethersProvider.js';
-	import { RaceHorseController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/RaceHorseController';
+	import { HorseNFTController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/HorseNFTController';
 	import { HorseMarketController } from '/workspace/Block-Gallop-Stables/client/src/lib/controllers/HorseMarketController';
 	import { onMount } from 'svelte';
 
@@ -74,52 +74,62 @@
 	}
 
 	async function storeNFT() {
-		// Convert the image URL to a File object
-		const imageFile = dataURLtoFile(formData.imageURL, 'image.png');
+		try {
+			const horseNFTController = new HorseNFTController();
+			await horseNFTController.init();
 
-		// Prepare the TokenInput object
-		const tokenInput: TokenInput = {
-			name: formData.name,
-			description: `Age: ${formData.age}, Breed: ${formData.breed}, Racing Status: ${formData.racingStatus}, Sale Type: ${formData.saleType}, Price: ${formData.price}, Deadline: ${formData.deadline}`,
-			image: imageFile
-			// ... other properties
-		};
+			// Convert the image URL to a File object
+			const imageFile = dataURLtoFile(formData.imageURL, 'image.png');
 
-		const ipnft = await nftstorage.store(tokenInput);
+			// Prepare the TokenInput object
+			const tokenInput = {
+				name: formData.name,
+				description: `Age: ${formData.age}, Breed: ${formData.breed}, Racing Status: ${formData.racingStatus}, Sale Type: ${formData.saleType}, Price: ${formData.price}, Deadline: ${formData.deadline}`,
+				image: imageFile
+			};
 
-		// Log the created NFT URL
-		const uri = `https://ipfs.io/ipfs/${ipnft.ipnft}/metadata.json`;
-		console.log(uri);
+			const ipnft = await nftstorage.store(tokenInput);
 
-		// Do something with ipnft, e.g., store it in formData
-		formData.tokenURI = uri;
+			// Log the created NFT URL
+			const uri = `https://ipfs.io/ipfs/${ipnft.ipnft}/metadata.json`;
+			console.log(uri);
+
+			// Store the tokenURI in formData
+			formData.tokenURI = uri;
+
+			// Call the mint function from the HorseNFTCotroller class to mint the NFT
+		const result = await horseNFTController.mint(uri);
+			console.log('NFT minted successfully. Transaction result:', result);
+		} catch (error) {
+			console.error('Error minting NFT:', error);
+		}
 	}
 
-	async function getNewTokenId(raceHorseController: RaceHorseController): Promise<number> {
-		const totalSupply = await raceHorseController.getTotalSupply();
+	async function getNewTokenId(horseNFTCotroller: HorseNFTController): Promise<number> {
+		const totalSupply = await horseNFTCotroller.totalSupply();
 		return totalSupply.toNumber() + 1;
 	}
 
 	async function onFormSubmit(): Promise<void> {
-		const raceHorseController = new RaceHorseController();
+		const horseNFTCotroller = new HorseNFTController();
 		const horseMarketController = new HorseMarketController();
 		const saleType = parseInt(formData.saleType);
 		const price = formData.price;
 		const deadline = formData.deadline ?? new Date();
 
 		try {
-			await raceHorseController.init();
+			await horseNFTCotroller.init();
 			await horseMarketController.init();
 
 			// Store the NFT and set the tokenURI
 			await storeNFT();
 
 			// Get the new tokenId using the getNewTokenId function
-			const tokenId = await getNewTokenId(raceHorseController);
+			const tokenId = await getNewTokenId(horseNFTCotroller);
 			console.log(tokenId);
 
 			// Check the owner of the NFT with tokenId
-			const owner = await horseMarketController.getNFTOwner(raceHorseController, tokenId);
+			const owner = await horseMarketController.getNFTOwner(horseNFTCotroller, tokenId);
 			console.log(`The owner of the NFT with tokenId ${tokenId} is: ${owner}`);
 
 			// List the horse for sale with the new tokenId
